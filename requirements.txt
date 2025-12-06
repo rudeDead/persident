@@ -1,7 +1,7 @@
 Flask
 gunicorn
 
-numpy
+numpy<2
 pandas
 scikit-learn
 
@@ -14,3 +14,4 @@ Pillow
 
 scipy
 plotly
+
