@@ -1,4 +1,5 @@
-FROM pytorch/pytorch:2.1.2-cpu
+FROM pytorch/pytorch:2.1.0-cpu
+
 WORKDIR /app
 
 COPY . /app
