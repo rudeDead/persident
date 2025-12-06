@@ -38,4 +38,4 @@ RUN mkdir -p outputs
 
 
 EXPOSE 8000
-CMD ["gunicorn", "-w", "1", "-b", "0.0.0.0:8000", "app:app"]
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120", "--preload"]
