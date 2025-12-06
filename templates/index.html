@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Home - MB-EIG Molecular Property Prediction{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="property-header">
+        <h2>🧬 Explainable Molecular Property Prediction</h2>
+
+    </div>
+
+    <!-- Hero Section -->
+    <div class="highlight-box"
+        style="background: var(--gradient-primary); border: none; color: white; text-align: center; padding: 48px;">
+        <h3 style="color: white; font-size: 2.2em; margin-bottom: 16px;">🎯 What Makes MB-EIG Special?</h3>
+        <p style="color: rgba(255, 255, 255, 0.95); font-size: 1.2em; line-height: 1.8;">
+            Unlike traditional "black-box" AI, MB-EIG provides <strong>chemically meaningful explanations</strong> by
+            comparing your molecule
+            to its carbon-only skeleton. This dual-baseline approach reveals exactly which atoms and functional groups
+            drive molecular properties.
+        </p>
+    </div>
+
+    <!-- Main Features Highlight -->
+    <div class="about-section">
+        <h3>✨ Core MB-EIG Features</h3>
+        <div class="features-list">
+            <div class="feature-item">
+                <span class="feature-icon">🔬</span>
+                <div>
+                    <h4>Inert Skeleton Baseline</h4>
+                    <p>Creates a carbon-only clone of your molecule, then gradually "turns on" heteroatoms (O, N, S) to
+                        isolate their exact contribution to properties</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">📊</span>
+                <div>
+                    <h4>Integrated Gradients</h4>
+                    <p>Uses calculus to track how the prediction changes along the transformation path from skeleton to
+                        full molecule, providing precise atom attributions</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🎯</span>
+                <div>
+                    <h4>Dual-Baseline Robustness</h4>
+                    <p>Averages explanations from skeleton and zero baselines for more reliable, consistent attributions
+                        (consistency scores >0.7)</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">🧪</span>
+                <div>
+                    <h4>Fragment-Level Analysis</h4>
+                    <p>Automatically groups atoms into functional groups (hydroxyl, aromatic, alkyl) and shows their
+                        collective impact on properties</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Predictions -->
+    <div class="about-section">
+        <h3>🔬 Available Molecular Property Predictions</h3>
+        <div class="tech-stack">
+            <div class="tech-item">
+                <strong>💧 ESOL (Aqueous Solubility)</strong>
+                <p style="margin: 12px 0;">Predicts how well a molecule dissolves in water</p>
+                <p style="font-size: 0.9em; color: var(--text-secondary); margin-bottom: 12px;">
+                    <strong>Units:</strong> log(mol/L)<br>
+                    <strong>R² Score:</strong> 0.898<br>
+                    <strong>Use Case:</strong> Drug bioavailability, formulation
+                </p>
+                <a href="/predict/esol" class="btn-primary"
+                    style="display: inline-block; margin-top: 10px; padding: 10px 20px; text-decoration: none;">Predict
+                    ESOL →</a>
+            </div>
+
+            <div class="tech-item">
+                <strong>🧪 Lipophilicity (logP)</strong>
+                <p style="margin: 12px 0;">Measures oil/water partition coefficient</p>
+                <p style="font-size: 0.9em; color: var(--text-secondary); margin-bottom: 12px;">
+                    <strong>Units:</strong> logP (octanol/water)<br>
+                    <strong>R² Score:</strong> 0.641<br>
+                    <strong>Use Case:</strong> Membrane permeability, ADME
+                </p>
+                <a href="/predict/lipo" class="btn-primary"
+                    style="display: inline-block; margin-top: 10px; padding: 10px 20px; text-decoration: none;">Predict
+                    Lipo →</a>
+            </div>
+
+            <div class="tech-item">
+                <strong>⚡ FreeSolv (Hydration Energy)</strong>
+                <p style="margin: 12px 0;">Calculates free energy of solvation in water</p>
+                <p style="font-size: 0.9em; color: var(--text-secondary); margin-bottom: 12px;">
+                    <strong>Units:</strong> kcal/mol<br>
+                    <strong>R² Score:</strong> 0.845<br>
+                    <strong>Use Case:</strong> Thermodynamic analysis, binding
+                </p>
+                <a href="/predict/freesolv" class="btn-primary"
+                    style="display: inline-block; margin-top: 10px; padding: 10px 20px; text-decoration: none;">Predict
+                    FreeSolv →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="methodology-section">
+        <h3>🔄 How MB-EIG Works: 5 Simple Steps</h3>
+        <div class="methodology-steps">
+            <div class="method-step">
+                <h4><span class="step-number">1</span> Input Your Molecule</h4>
+                <p>Enter a SMILES string (e.g., "CCO" for ethanol). Our system parses it into a molecular graph with
+                    atoms and bonds.</p>
+            </div>
+
+            <div class="method-step">
+                <h4><span class="step-number">2</span> Create Skeleton Baseline</h4>
+                <p>We replace all heteroatoms (O, N, S, etc.) with carbon to create an "inert skeleton" - your
+                    molecule's boring carbon-only twin.</p>
+            </div>
+
+            <div class="method-step">
+                <h4><span class="step-number">3</span> Gradual Transformation</h4>
+                <p>We gradually transform the skeleton back to your molecule, measuring how the prediction changes at
+                    each step using Integrated Gradients.</p>
+            </div>
+
+            <div class="method-step">
+                <h4><span class="step-number">4</span> Compute Attributions</h4>
+                <p>Each atom gets an attribution score showing its importance. We average scores from skeleton and zero
+                    baselines for robustness.</p>
+            </div>
+
+            <div class="method-step">
+                <h4><span class="step-number">5</span> Fragment Analysis</h4>
+                <p>Atoms are grouped into functional groups (hydroxyl, aromatic, etc.) with aggregated importance scores
+                    and chemical interpretations.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quality Metrics -->
+    <div class="about-section">
+        <h3>📈 Explanation Quality Metrics</h3>
+        <div class="tech-stack">
+            <div class="tech-item">
+                <strong>Consistency Score</strong>
+                <p>Measures agreement between skeleton and zero baseline attributions (cosine similarity)</p>
+                <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">
+                    ✅ >0.7 = High<br>
+                    ⚠️ 0.5-0.7 = Medium<br>
+                    ❌ <0.5=Low </p>
+            </div>
+
+            <div class="tech-item">
+                <strong>Confidence Score</strong>
+                <p>Indicates how concentrated or distributed the importance is across atoms</p>
+                <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">
+                    High = Few atoms dominate<br>
+                    Low = Importance spread out
+                </p>
+            </div>
+
+            <div class="tech-item">
+                <strong>Validity Rating</strong>
+                <p>Chemical plausibility based on known structure-property relationships</p>
+                <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 8px;">
+                    HIGH = Chemically sound<br>
+                    MEDIUM = Acceptable<br>
+                    LOW = Questionable
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Start -->
+    <div class="about-section">
+        <h3>🚀 Quick Start Guide</h3>
+        <ol style="line-height: 2; font-size: 1.05em;">
+            <li>Choose a property type (ESOL, Lipophilicity, or FreeSolv) from the navigation</li>
+            <li>Enter a SMILES string (or try an example like "CCO", "c1ccccc1", "CC(=O)O")</li>
+            <li>Click "Predict" and wait a few seconds for the analysis</li>
+            <li>Explore the results:
+                <ul style="margin-left: 24px; margin-top: 8px;">
+                    <li>Prediction value with quality metrics</li>
+                    <li>Baseline comparison charts (IG-Zero, IG-Skeleton, MB-EIG)</li>
+                    <li>Color-coded molecule visualization</li>
+                    <li>Fragment-level analysis</li>
+                    <li>Human-readable explanation</li>
+                </ul>
+            </li>
+            <li>Download results as JSON for further analysis</li>
+        </ol>
+    </div>
+
+
+    <!-- Call to Action -->
+    <div class="about-section"
+        style="text-align: center; margin-top: 40px; padding: 48px; background: var(--gradient-secondary); border-radius: 20px;">
+        <h3 style="color: white; font-size: 2em; margin-bottom: 16px;">Ready to Discover?</h3>
+        <p style="color: rgba(255, 255, 255, 0.95); font-size: 1.2em; margin-bottom: 24px;">
+            Explore the full methodology, equations, and case studies
+        </p>
+        <a href="/about" class="btn-primary"
+            style="display: inline-block; padding: 14px 32px; text-decoration: none; background: white; color: var(--primary-blue); border-radius: 12px; font-weight: 700; box-shadow: var(--shadow-lg); font-size: 1.1em;">Learn
+            More About MB-EIG →</a>
+    </div>
+</div>
+{% endblock %}

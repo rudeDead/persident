@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}FreeSolv - Hydration Free Energy Prediction{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="property-header">
+        <h2>⚡ FreeSolv - Hydration Free Energy Prediction</h2>
+        <p>Predict hydration free energy (kcal/mol) with explainable AI</p>
+    </div>
+    
+    <div class="input-section">
+        <div class="input-group">
+            <label for="smiles-input">Enter SMILES String:</label>
+            <input type="text" id="smiles-input" placeholder="e.g., CCO (ethanol)" />
+        </div>
+        
+        <div class="button-group">
+            <button class="btn-primary" onclick="predictProperty('freesolv')">🔍 Predict Hydration Energy</button>
+            <button class="btn-secondary" onclick="document.getElementById('smiles-input').value = ''">🗑️ Clear</button>
+        </div>
+        
+        <div class="examples">
+            <h4>Quick Examples:</h4>
+            <div class="example-buttons">
+                <button class="example-btn" onclick="loadExample('CN(C)C(=O)c1ccc(cc1)OC')">CN(C)C(=O)c1ccc(cc1)OC</button>
+                <button class="example-btn" onclick="loadExample('CCc1cnccn1')">CCc1cnccn1</button>
+                <button class="example-btn" onclick="loadExample('CN(C)C(=O)c1ccccc1')">CN(C)C(=O)c1ccccc1</button>
+                <button class="example-btn" onclick="loadExample('c1cc2c(cc1Cl)Oc3cc(c(c(c3O2)Cl)Cl)Cl')">c1cc2c(cc1Cl)Oc3cc(c(c(c3O2)Cl)Cl)Cl</button>
+                <button class="example-btn" onclick="loadExample('C(C(Cl)(Cl)Cl)(Cl)(Cl)Cl')">C(C(Cl)(Cl)Cl)(Cl)(Cl)Cl</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Computing MB-EIG explanation...</p>
+    </div>
+    
+    <div id="error"></div>
+    
+    <div id="results"></div>
+</div>
+{% endblock %}

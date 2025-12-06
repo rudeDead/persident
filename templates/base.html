@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Explainable Molecular Property Prediction with MB-EIG{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                
+                <div class="header-text">
+                    <h1>🧬 Explainable Molecular Property Prediction with MB-EIG</h1>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="/">🏠 Home</a></li>
+                <li><a href="/predict/esol">💧 ESOL</a></li>
+                <li><a href="/predict/lipo">🧪 Lipophilicity</a></li>
+                <li><a href="/predict/freesolv">⚡ FreeSolv</a></li>
+                <li><a href="/about">ℹ️ About</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Molecular Property Prediction | TANMAY | RIT Rajaramnagar | Department of CSE (AI & ML)</p>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/prediction.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

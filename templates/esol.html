@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}ESOL - Water Solubility Prediction{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="property-header">
+        <h2>💧 ESOL - Water Solubility Prediction</h2>
+        <p>Predict aqueous solubility using explainable AI with MB-EIG</p>
+        <p style="font-size: 0.95em; color: var(--text-light); margin-top: 8px;">
+            Unit: log(mol/L) | Higher values = more soluble in water
+        </p>
+    </div>
+
+    <div class="input-section">
+        <div class="input-group">
+            <label for="smiles-input">
+                🧪 Enter SMILES String:
+                <span style="font-weight: normal; color: var(--text-secondary); font-size: 0.9em;">
+                    (Simplified Molecular Input Line Entry System)
+                </span>
+            </label>
+            <input type="text" id="smiles-input" placeholder="e.g., CCO (ethanol)" />
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" onclick="predictProperty('esol')">
+                🔮 Predict & Explain
+            </button>
+            <button class="btn-secondary" onclick="clearResults()">
+                🗑️ Clear All
+            </button>
+        </div>
+
+        <div class="examples">
+            <h4>📝 Example Molecules:</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9em; margin-bottom: 12px;">
+                Click to load example SMILES strings
+            </p>
+            <div class="example-buttons">
+                <button class="example-btn" onclick="loadExample('CN(C)C(=O)SCCCCOc1ccccc1')">
+                    💧 CN(C)C(=O)SCCCCOc1ccccc1
+                </button>
+                <button class="example-btn" onclick="loadExample('CC34CC(O)C1(F)C(CCC2=CC(=O)C=CC12C)C3CC(O)C4(O)C(=O)CO')">
+                    ⬡ CC34CC(O)C1(F)C(CCC2=CC(=O)C=CC12C)C3CC(O)C4(O)C(=O)CO
+                </button>
+                <button class="example-btn" onclick="loadExample('Nc1ccc(O)cc1')">
+                    🧪Nc1ccc(O)cc1
+                </button>
+                <button class="example-btn" onclick="loadExample('NC(=S)N')">
+                    🔬 NC(=S)N
+                </button>
+                <button class="example-btn" onclick="loadExample('CCCC1COC(Cn2cncn2)(O1)c3ccc(Cl)cc3Cl')">
+                    🛢️ CCCC1COC(Cn2cncn2)(O1)c3ccc(Cl)cc3Cl
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>🧠 Computing MB-EIG explanation...</p>
+        <p style="color: var(--text-light); font-size: 0.9em; margin-top: 8px;">
+            This may take a few seconds
+        </p>
+    </div>
+
+    <div id="error"></div>
+
+    <div id="results"></div>
+</div>
+
+<style>
+    .example-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 12px 16px;
+        min-width: 120px;
+    }
+
+    .example-btn small {
+        font-size: 0.75em;
+        margin-top: 4px;
+        opacity: 0.8;
+    }
+</style>
+{% endblock %}

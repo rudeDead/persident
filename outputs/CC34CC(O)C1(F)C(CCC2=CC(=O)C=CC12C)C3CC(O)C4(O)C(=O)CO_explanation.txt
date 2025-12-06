@@ -1,0 +1,25 @@
+MOLECULAR PROPERTY PREDICTION EXPLANATION
+============================================================
+
+Input SMILES: CC34CC(O)C1(F)C(CCC2=CC(=O)C=CC12C)C3CC(O)C4(O)C(=O)CO
+Canonical SMILES: CC12C=CC(=O)C=C1CCC1C3CC(O)C(O)(C(=O)CO)C3(C)CC(O)C12F
+Property: ESOL
+Predicted Value: -3.385 log(mol/L)
+
+EXPLANATION:
+------------------------------
+To see why this molecule dissolves in water, we compared it to its 'oily twin' (carbon-only version).
+
+🔵 The BLUE parts (water-loving groups) dominate this molecule!
+Key groups: Hydroxyl (-OH), Carbonyl (C=O)
+These polar groups act as 'water hooks', pulling the molecule into solution.
+
+Prediction: -3.385 log(mol/L) - INCREASED water solubility
+
+TECHNICAL DETAILS:
+------------------------------
+Consistency: 0.782
+Confidence: 0.189
+Validity: HIGH
+
+Generated: 2025-12-06 12:18:12

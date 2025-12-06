@@ -1,0 +1,396 @@
+{% extends "base.html" %}
+
+{% block title %}About - MB-EIG Explainable AI{% endblock %}
+
+{% block content %}
+<div class="about-page">
+    <div class="about-header">
+        <h1>🧬 Multi-Baseline Enhanced Integrated Gradients</h1>
+        <p class="subtitle">Explainable AI for Drug Discovery & Molecular Property Prediction</p>
+    </div>
+
+    <div class="about-content">
+        <!-- Project Overview -->
+        <section class="about-section">
+            <h2>🎯 Project Overview</h2>
+            <p>
+                This project introduces an explainability framework called <strong>Multi-Baseline Enhanced Integrated
+                    Gradients (MB-EIG)</strong>
+                applied to Graphormer models for predicting three key molecular properties essential in drug discovery:
+            </p>
+            <ul>
+                <li><strong>ESOL (Aqueous Solubility):</strong> Measures how well a molecule dissolves in water</li>
+                <li><strong>Lipophilicity (logP):</strong> Quantifies the affinity of a molecule for lipid vs aqueous
+                    environments</li>
+                <li><strong>FreeSolv (Hydration Free Energy):</strong> Thermodynamic favorability of transferring a
+                    molecule to water</li>
+            </ul>
+        </section>
+
+        <!-- MB-EIG Methodology -->
+        <div class="methodology-section">
+            <h3>🔬 MB-EIG Methodology: How It Works</h3>
+            <p style="text-align: center; color: var(--text-secondary); font-size: 1.1em; margin-bottom: 32px;">
+                Our approach uses <strong>dual baselines</strong> to provide chemically meaningful explanations
+            </p>
+
+            <div class="methodology-steps">
+                <div class="method-step">
+                    <h4><span class="step-number">1</span> Clone the Molecule</h4>
+                    <p>
+                        We start with your input molecule and create a <strong>carbon-only clone</strong> (Inert Skeleton).
+                        This means replacing all heteroatoms (O, N, S, etc.) with carbon atoms while keeping the same structure.
+                        This gives us a "boring" version of the molecule to compare against.
+                    </p>
+                </div>
+
+                <div class="method-step">
+                    <h4><span class="step-number">2</span> Change Heteroatoms Gradually</h4>
+                    <p>
+                        We gradually transform the carbon-only skeleton back into the original molecule by slowly "turning on"
+                        the heteroatoms. At each step, we measure how the model's prediction changes. This is like watching
+                        a time-lapse of the molecule gaining its chemical personality.
+                    </p>
+                </div>
+
+                <div class="method-step">
+                    <h4><span class="step-number">3</span> Apply Integrated Gradients</h4>
+                    <p>
+                        Using calculus (Integrated Gradients), we track how sensitive the prediction is to each atom along
+                        this transformation path. Atoms that cause big changes in the prediction get high attribution scores.
+                        This tells us which atoms are most important for the property.
+                    </p>
+                </div>
+
+                <div class="method-step">
+                    <h4><span class="step-number">4</span> Combine with Zero Baseline</h4>
+                    <p>
+                        We also compute attributions from a "zero baseline" (empty molecule) and average it with the skeleton
+                        baseline. This dual-baseline approach makes our explanations more robust and reliable, capturing both
+                        relative (compared to skeleton) and absolute (compared to nothing) importance.
+                    </p>
+                </div>
+
+                <div class="method-step">
+                    <h4><span class="step-number">5</span> Fragment-Level Analysis</h4>
+                    <p>
+                        Finally, we group atoms into chemically meaningful fragments (like hydroxyl groups, aromatic rings, etc.)
+                        and aggregate their attributions. This gives you explanations in terms chemists actually think about,
+                        not just individual atoms.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Equations Section -->
+        <section class="about-section">
+            <h2>📐 Mathematical Foundation</h2>
+            
+            <div class="equation-box">
+                <h4>Standard Integrated Gradients</h4>
+                <div class="equation">
+                    IG<sub>i</sub>(x) = (x<sub>i</sub> - x'<sub>i</sub>) × ∫<sub>α=0</sub><sup>1</sup> ∂f(x' + α(x - x'))/∂x<sub>i</sub> dα
+                </div>
+                <p class="equation-description">
+                    This computes the attribution for feature i by integrating gradients along the path from baseline x' to input x.
+                </p>
+            </div>
+
+            <div class="equation-box">
+                <h4>MB-EIG: Dual Baseline Enhancement</h4>
+                <div class="equation">
+                    MB-EIG<sub>i</sub> = ½ × (IG<sub>i</sub><sup>skeleton</sup> + IG<sub>i</sub><sup>zero</sup>)
+                </div>
+                <p class="equation-description">
+                    We average attributions from two baselines: the carbon skeleton (chemically meaningful) and zero baseline (absolute importance).
+                </p>
+            </div>
+
+            <div class="equation-box">
+                <h4>Consistency Metric</h4>
+                <div class="equation">
+                    Consistency = (A<sup>skeleton</sup> · A<sup>zero</sup>) / (||A<sup>skeleton</sup>|| × ||A<sup>zero</sup>||)
+                </div>
+                <p class="equation-description">
+                    Cosine similarity between the two baseline attributions. High consistency (>0.7) indicates reliable explanations.
+                </p>
+            </div>
+        </section>
+
+        <!-- Case Study: ESOL Example -->
+        <div class="case-study">
+            <h3>📊 Case Study: ESOL (Aqueous Solubility)</h3>
+            <div class="case-study-content">
+                <h4 style="color: var(--primary-blue); margin-bottom: 20px;">Molecule: O=c2[nH]c1CCCc1c(=O)n2C3CCCCC3</h4>
+                
+                <div class="molecule-details">
+                    <div class="detail-item">
+                        <strong>SMILES:</strong>
+                        <span>O=c2[nH]c1CCCc1c(=O)n2C3CCCCC3</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Canonical SMILES:</strong>
+                        <span>O=c1[nH]c2c(c(=O)n1C1CCCCC1)CCC2</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Property:</strong>
+                        <span>Water Solubility (ESOL)</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Predicted Value:</strong>
+                        <span>-2.869 log(mol/L)</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Number of Atoms:</strong>
+                        <span>17</span>
+                    </div>
+                </div>
+
+                <div class="highlight-box" style="margin: 24px 0;">
+                    <h4>🎯 Explanation Quality Metrics</h4>
+                    <ul>
+                        <li><strong>Consistency:</strong> 0.830 (83% - High agreement between baselines)</li>
+                        <li><strong>Confidence:</strong> 0.235 (Distributed importance across multiple atoms)</li>
+                        <li><strong>Validity:</strong> HIGH (Chemically plausible explanations)</li>
+                    </ul>
+                </div>
+
+                <h4 style="color: var(--primary-blue); margin: 32px 0 16px 0;">Atom-Level Attributions</h4>
+                <table class="attribution-table">
+                    <thead>
+                        <tr>
+                            <th>Atom</th>
+                            <th>IG Skeleton</th>
+                            <th>IG Zero</th>
+                            <th>MB-EIG (Average)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>0 (O)</td><td>0.4633</td><td>0.2013</td><td><strong>0.3324</strong></td></tr>
+                        <tr><td>1 (N)</td><td>0.0000</td><td>0.0630</td><td><strong>0.0315</strong></td></tr>
+                        <tr><td>2 (C)</td><td>0.1679</td><td>0.0581</td><td><strong>0.1130</strong></td></tr>
+                        <tr><td>9 (C=O)</td><td>0.1896</td><td>0.1516</td><td><strong>0.1706</strong></td></tr>
+                        <tr><td>10 (C)</td><td>0.1790</td><td>0.0668</td><td><strong>0.1229</strong></td></tr>
+                        <tr><td>12-16 (Alkyl)</td><td>0.0000</td><td>~0.02</td><td><strong>~0.01</strong></td></tr>
+                    </tbody>
+                </table>
+
+                <div class="fragment-analysis">
+                    <h4>🧪 Fragment-Level Contribution</h4>
+                    <div class="fragment-list">
+                        <div class="fragment-list-item">
+                            <div>
+                                <strong>Long Alkyl Chain (Cyclohexyl)</strong><br>
+                                <span style="color: var(--text-secondary); font-size: 0.9em;">Atoms: 12-16</span>
+                            </div>
+                            <span class="attribution-value">0.055</span>
+                        </div>
+                        <div class="fragment-list-item">
+                            <div>
+                                <strong>Carbonyl Oxygens</strong><br>
+                                <span style="color: var(--text-secondary); font-size: 0.9em;">Atoms: 0, 9</span>
+                            </div>
+                            <span class="attribution-value">0.502</span>
+                        </div>
+                        <div class="fragment-list-item">
+                            <div>
+                                <strong>Aromatic Ring System</strong><br>
+                                <span style="color: var(--text-secondary); font-size: 0.9em;">Atoms: 2, 10</span>
+                            </div>
+                            <span class="attribution-value">0.236</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left-color: var(--warning-orange);">
+                    <h4>💡 Human Interpretation</h4>
+                    <p>
+                        The hydrophobic ring system dominates the explanation, overpowering the solubilizing carbonyl and NH groups.
+                        The <strong>red (water-hating) components outweigh the polar groups</strong> — resulting in low solubility.
+                    </p>
+                    <p style="margin-top: 12px; font-weight: 600;">
+                        <strong>Final Effect:</strong> Strong decrease in aqueous solubility (-2.869 log(mol/L))
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chemical Validation -->
+        <div class="validation-section">
+            <h3>✅ Chemical Validation</h3>
+            <p style="text-align: center; color: var(--text-secondary); font-size: 1.1em; margin-bottom: 24px;">
+                How we ensure our explanations align with established chemistry
+            </p>
+
+            <div class="validation-points">
+                <div class="validation-point">
+                    <h4>🔵 Polar Groups Increase Solubility</h4>
+                    <p>
+                        MB-EIG correctly identifies hydroxyl (-OH), carboxyl (-COOH), and amino (-NH₂) groups as increasing
+                        water solubility. These groups form hydrogen bonds with water molecules, making the molecule more
+                        "water-loving" (hydrophilic).
+                    </p>
+                </div>
+
+                <div class="validation-point">
+                    <h4>🔴 Hydrophobic Groups Decrease Solubility</h4>
+                    <p>
+                        Long alkyl chains and aromatic rings receive negative attributions for solubility, correctly reflecting
+                        their hydrophobic (water-hating) nature. These groups cannot form strong interactions with water.
+                    </p>
+                </div>
+
+                <div class="validation-point">
+                    <h4>⚖️ Lipophilicity Pattern Reversal</h4>
+                    <p>
+                        For lipophilicity (logP), the pattern reverses as expected: hydrophobic groups show positive contributions
+                        (favoring oil phase), while polar groups show negative contributions (favoring water phase). This validates
+                        that the model understands the underlying chemistry.
+                    </p>
+                </div>
+
+                <div class="validation-point">
+                    <h4>🧬 Fragment-Level Consistency</h4>
+                    <p>
+                        When we group atoms into functional groups, the aggregated attributions align with known fragment
+                        contribution methods (like Leo-Hansch for logP). This shows our atom-level explanations are chemically coherent.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <section class="about-section">
+            <h2>🔬 Technology Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <h4>Graphormer</h4>
+                    <p>Transformer-based graph neural network that uses global attention to capture long-range dependencies in molecular structures</p>
+                </div>
+                <div class="tech-item">
+                    <h4>MB-EIG</h4>
+                    <p>Multi-Baseline Enhanced Integrated Gradients for chemically grounded explainable AI</p>
+                </div>
+                <div class="tech-item">
+                    <h4>RDKit</h4>
+                    <p>Cheminformatics toolkit for molecular structure processing, SMILES parsing, and visualization</p>
+                </div>
+                <div class="tech-item">
+                    <h4>PyTorch</h4>
+                    <p>Deep learning framework for model training, inference, and gradient computation</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Features -->
+        <section class="about-section">
+            <h2>💡 Key Features</h2>
+            <div class="features-list">
+                <div class="feature-item">
+                    <span class="feature-icon">🎯</span>
+                    <div>
+                        <h4>Accurate Predictions</h4>
+                        <p>State-of-the-art Graphormer architecture achieving R² of 0.898 (ESOL), 0.845 (FreeSolv), and 0.641 (Lipophilicity)</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🔍</span>
+                    <div>
+                        <h4>Dual-Baseline MB-EIG</h4>
+                        <p>Uses both Inert Skeleton and Zero baselines for robust, chemically meaningful explanations</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📊</span>
+                    <div>
+                        <h4>Visual Insights</h4>
+                        <p>Interactive visualizations showing atom-level attributions, fragment analysis, and quality metrics</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⚡</span>
+                    <div>
+                        <h4>Real-time Analysis</h4>
+                        <p>Fast predictions with instant explainability for rapid drug discovery workflows</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contributors -->
+        <section class="about-section">
+            <h2>👥 Contributors</h2>
+            <div class="contributors">
+                <div class="contributor-card">
+                    <h4>Tanmay Gangurde</h4>
+                    <p class="affiliation">RIT, Rajaramnagar<br>Dept. of CSE (AI & ML)</p>
+                </div>
+                <div class="contributor-card">
+                    <h4>Vaishnawi Chandavale</h4>
+                    <p class="affiliation">RIT, Rajaramnagar<br>Dept. of CSE (AI & ML)</p>
+                </div>
+                <div class="contributor-card">
+                    <h4>Kaustubh Patil</h4>
+                    <p class="affiliation">RIT, Rajaramnagar<br>Dept. of CSE (AI & ML)</p>
+                </div>
+                <div class="contributor-card">
+                    <h4>Abinandan Kore</h4>
+                    <p class="affiliation">RIT, Rajaramnagar<br>Dept. of CSE (AI & ML)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Research Background -->
+        <section class="about-section">
+            <h2>📚 Research Background</h2>
+            <p>
+                This work addresses the critical gap in interpretability of deep learning models for molecular property
+                prediction.
+                Traditional methods like Integrated Gradients use unrealistic "zero baselines" that don't reflect true
+                chemical structures.
+                MB-EIG introduces chemically meaningful reference points using carbon and heteroatom baselines to
+                capture realistic
+                molecular contexts, enabling more transparent and trustworthy predictions.
+            </p>
+
+            <div class="highlight-box" style="margin-top: 24px;">
+                <h4>🎓 Academic Context</h4>
+                <p>
+                    <strong>Institution:</strong> RIT, Rajaramnagar<br>
+                    <strong>Department:</strong> Computer Science & Engineering (AI & ML)<br>
+                    <strong>Project Title:</strong> Explainable Molecular Property Prediction using Graphormer with
+                    Multi-Baseline Enhanced Integrated Gradients<br>
+                    <strong>Date:</strong> November 2025
+                </p>
+            </div>
+        </section>
+
+        <!-- How to Use -->
+        <section class="about-section">
+            <h2>🔗 How to Use</h2>
+            <ol style="line-height: 2; font-size: 1.05em;">
+                <li>Navigate to one of the three property prediction pages (ESOL, Lipophilicity, or FreeSolv)</li>
+                <li>Enter a SMILES string representing your molecule of interest</li>
+                <li>Click "Predict" to generate the property prediction</li>
+                <li>Explore the visualizations showing which atoms and functional groups contribute to the prediction
+                </li>
+                <li>Review the consistency, confidence, and validity metrics to assess explanation quality</li>
+                <li>Download the complete JSON output for further analysis</li>
+            </ol>
+        </section>
+
+        <!-- Call to Action -->
+        <div style="text-align: center; margin-top: 48px; padding: 40px; background: var(--gradient-primary); border-radius: 20px;">
+            <h3 style="color: white; font-size: 2em; margin-bottom: 16px;">Ready to Explore?</h3>
+            <p style="color: rgba(255, 255, 255, 0.9); font-size: 1.2em; margin-bottom: 24px;">
+                Try predicting molecular properties with explainable AI
+            </p>
+            <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                <a href="/predict/esol" class="btn-primary" style="display: inline-block; padding: 14px 32px; text-decoration: none; background: white; color: var(--primary-blue); border-radius: 12px; font-weight: 700; box-shadow: var(--shadow-lg);">Try ESOL →</a>
+                <a href="/predict/lipo" class="btn-primary" style="display: inline-block; padding: 14px 32px; text-decoration: none; background: white; color: var(--primary-blue); border-radius: 12px; font-weight: 700; box-shadow: var(--shadow-lg);">Try Lipophilicity →</a>
+                <a href="/predict/freesolv" class="btn-primary" style="display: inline-block; padding: 14px 32px; text-decoration: none; background: white; color: var(--primary-blue); border-radius: 12px; font-weight: 700; box-shadow: var(--shadow-lg);">Try FreeSolv →</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
