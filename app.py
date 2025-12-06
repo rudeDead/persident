@@ -1,7 +1,6 @@
 """
 Flask Web Application for Molecular Property Prediction
 Explainable AI for Drug Discovery
-Optimized for Hugging Face Spaces Deployment
 """
 
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
@@ -31,11 +30,9 @@ from huggingface_hub import hf_hub_download
 HF_REPO = "Tanmay0483/mbeig"  # model repo ID
 
 # Model paths (download from Hugging Face model repo)
-print("Downloading model files from Hugging Face...")
 ESOL_MODEL = hf_hub_download(repo_id="Tanmay0483/mbeig", filename="best_graphormer_esol.pth")
 LIPO_MODEL = hf_hub_download(repo_id="Tanmay0483/mbeig", filename="best_graphormer_lipo.pth")
 FREE_MODEL = hf_hub_download(repo_id="Tanmay0483/mbeig", filename="best_graphormer_freesolv.pth")
-print("✓ Model files downloaded")
 
 # Load models on startup
 models = {}
@@ -98,12 +95,11 @@ def load_models():
         traceback.print_exc()
         print("\nPlease ensure model files are accessible from Hugging Face.")
         print("="*60 + "\n")
-        raise
+        raise  # Re-raise to prevent app from starting with failed models
 
-# Pre-load models on startup
-print("Initializing application and loading models...")
+# Load models immediately on startup (before first request)
+print("Pre-loading models on startup...")
 load_models()
-print("✓ Application ready to serve requests\n")
 
 @app.route('/')
 def index():
@@ -144,11 +140,13 @@ def download_all_files(smiles_hash):
     """Download all files as a ZIP archive"""
     outputs_dir = Path('outputs')
     
+    # Find all files matching the SMILES hash
     matching_files = list(outputs_dir.glob(f"{smiles_hash}*"))
     
     if not matching_files:
         return jsonify({'error': 'No files found'}), 404
     
+    # Create ZIP file in memory
     zip_buffer = BytesIO()
     with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         for file_path in matching_files:
@@ -165,9 +163,9 @@ def download_all_files(smiles_hash):
 
 @app.route('/api/health')
 def health():
-    """Health check endpoint for Hugging Face Spaces"""
+    """Health check endpoint"""
     return jsonify({
-        'status': 'healthy',
+        'status': 'ok',
         'models_loaded': models_loaded,
         'available_models': list(models.keys()),
         'device': str(device)
@@ -186,9 +184,11 @@ def predict():
         
         print(f"\n=== Prediction Request ===")
         print(f"SMILES: {smiles}")
-        print(f"Property Type: {property_type}")
+        print(f"Property Type (original): {property_type}")
         
+        # Map freesolv to free for model lookup
         model_key = 'free' if property_type == 'freesolv' else property_type
+        print(f"Property Type (mapped): {model_key}")
         
         if not smiles:
             return jsonify({'error': 'SMILES string is required'}), 400
@@ -196,11 +196,15 @@ def predict():
         if model_key not in models:
             return jsonify({
                 'error': f'Invalid property type: {property_type}',
-                'available': list(models.keys())
+                'available': list(models.keys()),
+                'received': data.get('property_type')
             }), 400
         
+        # Get explainer
+        print(f"Using model: {model_key}")
         explainer = models[model_key]['explainer']
         
+        # Compute prediction and explanation
         print("Computing MB-EIG explanation...")
         result = explainer.compute_mb_eig(smiles)
         
@@ -209,6 +213,7 @@ def predict():
             print(f"Error in prediction: {error_msg}")
             return jsonify({'error': error_msg}), 400
         
+        # Format response based on property type
         if 'predicted_value' in result:
             prediction_value = result['predicted_value']
         elif 'prediction' in result:
@@ -218,6 +223,7 @@ def predict():
             
         print(f"Prediction successful: {prediction_value:.3f}")
         
+        # Get baseline attributions
         baseline_attributions = result.get('baseline_attributions', {})
         if not baseline_attributions:
             baseline_attributions = {
@@ -225,9 +231,11 @@ def predict():
                 'ig_zero': result.get('ig_zero', [])
             }
         
+        # Generate visualizations and save to outputs folder
         print("Generating visualizations...")
         image_paths, file_paths = generate_and_save_visualizations(result, smiles, property_type)
         
+        # Prepare response with consistent structure
         response = {
             'smiles': result.get('smiles', smiles),
             'canonical_smiles': result.get('canonical_smiles', result.get('smiles', smiles)),
@@ -273,15 +281,16 @@ def generate_and_save_visualizations(result, smiles, property_type):
     from rdkit.Chem import rdDepictor
     from rdkit.Chem.Draw import rdMolDraw2D
     import matplotlib
-    matplotlib.use('Agg')
+    matplotlib.use('Agg')  # Use non-interactive backend
     import matplotlib.pyplot as plt
     from datetime import datetime
     
     outputs_dir = Path('outputs')
     outputs_dir.mkdir(exist_ok=True)
     
+    # Create safe filename from SMILES
     safe_smiles = smiles.replace('/', '_').replace('\\', '_').replace(':', '_').replace('*', '_')
-    safe_smiles = safe_smiles[:100]
+    safe_smiles = safe_smiles[:100]  # Limit length
     
     image_paths = {}
     file_paths = {}
@@ -296,6 +305,7 @@ def generate_and_save_visualizations(result, smiles, property_type):
             attr_array = np.array(attributions)
             
             if len(attr_array) > 0:
+                # Color scheme: intensity based on attribution value
                 atom_colors = {}
                 atom_radii = {}
                 
@@ -305,9 +315,11 @@ def generate_and_save_visualizations(result, smiles, property_type):
                     norm_attr = attributions[i] / max_attr
                     intensity = abs(norm_attr)
                     
+                    # Blue gradient for attributions
                     atom_colors[i] = (1-intensity, 1-intensity, 1.0)
                     atom_radii[i] = 0.3 + 0.5 * intensity
                 
+                # Draw molecule
                 drawer = rdMolDraw2D.MolDraw2DCairo(800, 600)
                 drawer.drawOptions().addAtomIndices = True
                 rdMolDraw2D.PrepareAndDrawMolecule(
@@ -318,16 +330,17 @@ def generate_and_save_visualizations(result, smiles, property_type):
                 )
                 drawer.FinishDrawing()
                 
+                # Save image
                 img_path = outputs_dir / f"{safe_smiles}_attribution_map.png"
                 with open(img_path, 'wb') as f:
                     f.write(drawer.GetDrawingText())
                 
                 image_paths['attribution_map'] = f'/outputs/{safe_smiles}_attribution_map.png'
                 file_paths['attribution_map'] = str(img_path)
-                print(f"✓ Saved attribution map")
+                print(f"✓ Saved attribution map: {img_path}")
         
         # 2. Generate attribution analysis plots
-        if 'mb_eig_attributions' in result:
+        if 'mb_eig_attributions' in result and 'baseline_attributions' in result:
             mb_eig = result['mb_eig_attributions']
             baseline_attr = result.get('baseline_attributions', {})
             ig_skeleton = baseline_attr.get('ig_skeleton', result.get('ig_skeleton', []))
@@ -337,6 +350,7 @@ def generate_and_save_visualizations(result, smiles, property_type):
             fig, axes = plt.subplots(2, 2, figsize=(15, 12))
             fig.suptitle(f"MB-EIG Attribution Analysis\nSMILES: {smiles}", fontsize=14)
             
+            # Plot 1: Baseline comparison
             if ig_skeleton and ig_zero and mb_eig:
                 atom_indices = range(1, len(mb_eig) + 1)
                 width = 0.25
@@ -354,6 +368,7 @@ def generate_and_save_visualizations(result, smiles, property_type):
                 axes[0, 0].legend()
                 axes[0, 0].grid(True, alpha=0.3)
             
+            # Plot 2: MB-EIG only
             if mb_eig:
                 colors = ['#4CAF50' for _ in mb_eig]
                 axes[0, 1].bar(atom_indices, mb_eig, color=colors, alpha=0.7)
@@ -362,6 +377,7 @@ def generate_and_save_visualizations(result, smiles, property_type):
                 axes[0, 1].set_title('MB-EIG Attributions')
                 axes[0, 1].grid(True, alpha=0.3)
             
+            # Plot 3: Fragment contributions
             if fragments:
                 frag_names = list(fragments.keys())
                 frag_scores = [fragments[name]['attribution'] for name in frag_names]
@@ -382,6 +398,7 @@ def generate_and_save_visualizations(result, smiles, property_type):
                                        textcoords="offset points",
                                        ha='center', va='bottom', fontsize=8)
             
+            # Plot 4: Quality metrics
             quality = result.get('explanation_quality', {})
             metrics = ['Consistency', 'Confidence']
             values = [quality.get('consistency', 0), quality.get('confidence', 0)]
@@ -401,19 +418,21 @@ def generate_and_save_visualizations(result, smiles, property_type):
             
             plt.tight_layout()
             
+            # Save plot
             plot_path = outputs_dir / f"{safe_smiles}_attribution_analysis.png"
             plt.savefig(plot_path, dpi=300, bbox_inches='tight')
             plt.close()
             
             image_paths['analysis_plot'] = f'/outputs/{safe_smiles}_attribution_analysis.png'
             file_paths['analysis_plot'] = str(plot_path)
-            print(f"✓ Saved analysis plot")
+            print(f"✓ Saved analysis plot: {plot_path}")
         
         # 3. Save JSON file
         json_path = outputs_dir / f"{safe_smiles}_prediction.json"
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(result, f, indent=2)
         file_paths['json'] = str(json_path)
+        print(f"✓ Saved JSON: {json_path}")
         
         # 4. Save text explanation
         text_path = outputs_dir / f"{safe_smiles}_explanation.txt"
@@ -435,6 +454,7 @@ def generate_and_save_visualizations(result, smiles, property_type):
             f.write(f"Validity: {quality.get('validity', 'N/A')}\n\n")
             f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         file_paths['text'] = str(text_path)
+        print(f"✓ Saved text explanation: {text_path}")
     
     except Exception as e:
         print(f"⚠️  Error generating visualizations: {e}")
@@ -443,13 +463,15 @@ def generate_and_save_visualizations(result, smiles, property_type):
     return image_paths, file_paths
 
 if __name__ == '__main__':
-    # For Hugging Face Spaces deployment
-    port = int(os.environ.get('PORT', 5000))  # HF Spaces uses port 7860
+    # Production mode - use environment variables for configuration
+    port = int(os.environ.get('PORT', 5000))
+    host = os.environ.get('HOST', '0.0.0.0')
     
+    # Run with production settings
     app.run(
-        host='0.0.0.0',
+        host=host,
         port=port,
-        debug=False,
-        use_reloader=False,
-        threaded=True
+        debug=False,  # CRITICAL: Never use debug=True in production
+        use_reloader=False,  # Prevent automatic reloading
+        threaded=True  # Handle multiple requests
     )
