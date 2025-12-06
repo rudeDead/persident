@@ -1,9 +1,9 @@
 ﻿Flask
 gunicorn
 
-torch
-torchvision
-torchaudio
+#torch
+#torchvision
+#torchaudio
 
 numpy
 pandas
@@ -25,4 +25,5 @@ plotly
 #torch-sparse
 #torch-cluster
 #torch-spline-conv
+
 
