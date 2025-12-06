@@ -1,15 +1,11 @@
-﻿Flask
+Flask
 gunicorn
-
-#torch
-#torchvision
-#torchaudio
 
 numpy
 pandas
 scikit-learn
 
-rdkit-pypi
+rdkit
 
 networkx
 matplotlib
@@ -18,12 +14,3 @@ Pillow
 
 scipy
 plotly
-
-# PyTorch Geometric dependencies (CPU only)
-#torch-geometric
-#torch-scatter
-#torch-sparse
-#torch-cluster
-#torch-spline-conv
-
-
